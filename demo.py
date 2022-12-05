@@ -158,7 +158,8 @@ def resize(image, size=800, max_size=1333):
 
 
 def main(args):
-    cap = cv2.VideoCapture(args.video_input)
+    #cap = cv2.VideoCapture(args.video_input)
+    cap = cv2.VideoCapture(1)
     frame_rate = int(round(cap.get(cv2.CAP_PROP_FPS)))
     video_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     video_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
