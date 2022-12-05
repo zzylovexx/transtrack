@@ -41,7 +41,7 @@ def get_args_parser():
     parser.add_argument('--sgd', action='store_true')
 
     # Variants of Deformable DETR
-    parser.add_argument('--with_box_refine', default=False, action='store_true')
+    parser.add_argument('--with_box_refine', default=True, action='store_true')
     parser.add_argument('--two_stage', default=False, action='store_true')
 
     # Model parameters
@@ -112,7 +112,7 @@ def get_args_parser():
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--seed', default=42, type=int)
-    parser.add_argument('--resume', default='', help='resume from checkpoint')
+    parser.add_argument('--resume', default='./output/671mot17_crowdhuman_mot17.pth', help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                         help='start epoch')
     parser.add_argument('--eval', action='store_true')
@@ -124,7 +124,7 @@ def get_args_parser():
     parser.add_argument('--checkpoint_dec_ffn', default=False, action='store_true')
 
     # demo
-    parser.add_argument('--video_input', default='demo.mp4')
+    parser.add_argument('--video_input', default='test.mp4')
     parser.add_argument('--demo_output', default='demo_output')
     parser.add_argument('--track_thresh', default=0.4, type=float)
     
@@ -189,6 +189,7 @@ def main(args):
     tracker.reset_all()
     pre_embed = None    
     res, img = cap.read()
+    object_list=[]
 
     
     while res:
@@ -202,6 +203,7 @@ def main(args):
         orig_sizes = torch.stack([torch.as_tensor([video_height, video_width])], dim=0).to(device)
         results = postprocessors['bbox'](outputs, orig_sizes)
         
+        
         if count == 1:
             res_track = tracker.init_track(results[0])
         else:
@@ -212,14 +214,26 @@ def main(args):
                 continue
             bbox = ret['bbox']
             tracking_id = ret['tracking_id']
-
-            cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color_list[tracking_id%79].tolist(), thickness=2)
-            cv2.putText(img, "{}".format(tracking_id), (int(bbox[0]), int(bbox[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color_list[tracking_id%79].tolist(), 2)
+            if (tracking_id not in object_list):
+                cv2.rectangle(img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color_list[tracking_id%79].tolist(), thickness=2)
+                cv2.putText(img, "{}".format(tracking_id), (int(bbox[0]), int(bbox[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color_list[tracking_id%79].tolist(), 2)
+            
         
+        cv2.imshow('video',img.astype(np.uint8))
+        key=cv2.waitKey(1)
+        if (key==ord('c')):
+            object_list.clear()
+        elif (key>0):
+            object_list.append(int(chr(key)))
+        
+        
+        if key==ord('q') or key==27:
+            break
         cv2.imwrite(os.path.join(demo_images_path, "demo{:0>6d}.png".format(count)), img)
         print('Frame{:d} of the video is done'.format(count))
 
         res, img = cap.read()
+
     
     print('Lenth of the video: {:d} frames'.format(count))
 

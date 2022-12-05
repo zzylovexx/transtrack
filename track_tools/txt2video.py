@@ -3,10 +3,13 @@ import sys
 import json
 import cv2
 import glob as gb
-from track_tools.colormap import colormap
+import sys
+sys.path.append('/home/haha/桌面/video_stream_and_track/hw3/TransTrack/track_tools')
+
+from colormap import colormap
 
 
-def txt2img(visual_path="visual_val_gt"):
+def txt2img(visual_path="visual_val_predict"):
     print("Starting txt2img")
 
     valid_labels = {1}
