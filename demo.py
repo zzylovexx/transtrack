@@ -224,13 +224,17 @@ def main(args):
         if (key==ord('c')):
             object_list.clear()
         elif (key>0):
-            object_list.append(int(chr(key)))
+            if (int(chr(key)) not in object_list):
+                object_list.append(int(chr(key)))
+            else :
+                object_list.remove(int(chr(key)))
         
         
         if key==ord('q') or key==27:
             break
         cv2.imwrite(os.path.join(demo_images_path, "demo{:0>6d}.png".format(count)), img)
-        print('Frame{:d} of the video is done'.format(count))
+        #print('Frame{:d} of the video is done'.format(count))
+        print(object_list)
 
         res, img = cap.read()
 
